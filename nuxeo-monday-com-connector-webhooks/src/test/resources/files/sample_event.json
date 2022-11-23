@@ -1,0 +1,19 @@
+{
+  "event": {
+    "userId": 9603417,
+    "originalTriggerUuid": null,
+    "boardId": 1771812698,
+    "pulseId": 1772099344,
+    "pulseName": "Create_item webhook",
+    "groupId": "topics",
+    "groupName": "Group Title",
+    "groupColor": "#579bfc",
+    "isTopGroup": true,
+    "columnValues": {},
+    "app": "monday",
+    "type": "create_pulse",
+    "triggerTime": "2021-10-11T09:07:28.210Z",
+    "subscriptionId": 73759690,
+    "triggerUuid": "b5ed2e17c530f43668de130142445cba"
+  }
+}

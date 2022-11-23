@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<component name="org.nuxeo.labs.monday.com.webhook.auth" version="1.0">
+
+    <extension target="org.nuxeo.ecm.platform.ui.web.auth.service.PluggableAuthenticationService" point="openUrl">
+        <openUrl name="MondayEndpoint">
+            <method>POST</method>
+            <grantPattern>/nuxeo/site/monday/event</grantPattern>
+        </openUrl>
+    </extension>
+
+</component>

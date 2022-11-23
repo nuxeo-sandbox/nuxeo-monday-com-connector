@@ -1,0 +1,10 @@
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: .
+Manifest-Version: 1.0
+Bundle-Vendor: org.nuxeo.labs.monday.com
+Bundle-Version: 1.0.0
+Bundle-Name: nuxeo-monday-com-connector-webhook
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: nuxeo-monday-com-connector-webhook;singleton=true
+Nuxeo-WebModule: org.nuxeo.ecm.webengine.app.WebEngineModule;name=monday;package=org/nuxeo/labs/monday/com/webhook/endpoint
+Nuxeo-Component: OSGI-INF/auth-contrib.xml
