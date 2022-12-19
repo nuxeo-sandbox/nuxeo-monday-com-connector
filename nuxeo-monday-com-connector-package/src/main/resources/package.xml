@@ -2,9 +2,9 @@
 <package type="addon" name="nuxeo-monday-com-connector" version="@VERSION@">
   <title>Monday.com Connector</title>
   <description>
-    <p>A connector for Monday.com</p>
+    <p>A connector for Monday.com webhooks</p>
   </description>
-  <!-- <home-page>http://doc.nuxeo.com/</home-page> -->
+  <home-page>https://github.com/nuxeo-sandbox/nuxeo-monday-com-connector</home-page>
   <vendor>Nuxeo</vendor>
   <installer restart="true" />
   <uninstaller restart="true" />
