@@ -33,8 +33,8 @@ import javax.ws.rs.core.Response;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.nuxeo.ecm.core.api.impl.blob.StringBlob;
 import org.nuxeo.ecm.core.event.EventService;
@@ -56,7 +56,7 @@ import static java.util.Collections.singletonMap;
 @Consumes({ MediaType.APPLICATION_JSON })
 public class MondayWebhookEndpoint extends ModuleRoot {
 
-    protected static final Log log = LogFactory.getLog(MondayWebhookEndpoint.class);
+    protected static final Logger log = LogManager.getLogger(MondayWebhookEndpoint.class);
 
     public static final String MONDAY_EVENT = "mondayEvent";
 
