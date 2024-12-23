@@ -19,23 +19,11 @@
 
 package org.nuxeo.labs.monday.com.webhook;
 
-import static org.junit.Assert.assertEquals;
-import static org.nuxeo.labs.monday.com.webhook.endpoint.MondayWebhookEndpoint.CHALLENGE_FIELD;
-import static org.nuxeo.labs.monday.com.webhook.endpoint.MondayWebhookEndpoint.MONDAY_EVENT;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
-
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,8 +40,18 @@ import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.ServletContainerFeature;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import static org.junit.Assert.assertEquals;
+import static org.nuxeo.labs.monday.com.webhook.endpoint.MondayWebhookEndpoint.CHALLENGE_FIELD;
+import static org.nuxeo.labs.monday.com.webhook.endpoint.MondayWebhookEndpoint.MONDAY_EVENT;
+
 @RunWith(FeaturesRunner.class)
-@Features({ WebEngineFeature.class, CoreFeature.class })
+@Features({WebEngineFeature.class, CoreFeature.class})
 @Deploy("nuxeo-monday-com-connector-webhook")
 @RepositoryConfig(cleanup = Granularity.METHOD)
 public class TestMondayWebhookEndpoint {
@@ -81,7 +79,7 @@ public class TestMondayWebhookEndpoint {
             JSONTokener tokener = new JSONTokener(response.getEntityInputStream());
             JSONObject jsonResponse = new JSONObject(tokener);
             Assert.assertTrue(jsonResponse.has(CHALLENGE_FIELD));
-            Assert.assertEquals(challenge,jsonResponse.getString(CHALLENGE_FIELD));
+            Assert.assertEquals(challenge, jsonResponse.getString(CHALLENGE_FIELD));
         }
     }
 
@@ -106,10 +104,4 @@ public class TestMondayWebhookEndpoint {
             assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
         }
     }
-
-    protected String getBaseURL() {
-        int port = servletContainerFeature.getPort();
-        return "http://localhost:" + port;
-    }
-
 }

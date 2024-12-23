@@ -19,10 +19,9 @@
 
 package org.nuxeo.labs.monday.com.webhook.endpoint;
 
-import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
@@ -30,8 +29,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,10 +38,11 @@ import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.core.event.impl.EventContextImpl;
 import org.nuxeo.ecm.webengine.model.WebObject;
 import org.nuxeo.ecm.webengine.model.impl.ModuleRoot;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.nuxeo.runtime.api.Framework;
+
+import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import static java.util.Collections.singletonMap;
 
@@ -53,7 +51,7 @@ import static java.util.Collections.singletonMap;
  */
 @Path("/monday")
 @WebObject(type = "monday")
-@Consumes({ MediaType.APPLICATION_JSON })
+@Consumes({MediaType.APPLICATION_JSON})
 public class MondayWebhookEndpoint extends ModuleRoot {
 
     protected static final Logger log = LogManager.getLogger(MondayWebhookEndpoint.class);
