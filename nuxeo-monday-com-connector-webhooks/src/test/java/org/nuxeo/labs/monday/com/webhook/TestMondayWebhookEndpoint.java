@@ -36,6 +36,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.common.utils.FileUtils;
@@ -44,14 +45,12 @@ import org.nuxeo.ecm.core.test.CoreFeature;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.ecm.webengine.test.WebEngineFeature;
+import org.nuxeo.http.test.CloseableHttpResponse;
+import org.nuxeo.http.test.HttpClientTestRule;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 import org.nuxeo.runtime.test.runner.ServletContainerFeature;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
 
 @RunWith(FeaturesRunner.class)
 @Features({ WebEngineFeature.class, CoreFeature.class })
@@ -61,79 +60,56 @@ public class TestMondayWebhookEndpoint {
 
     private static final String CONTENT_TYPE = "application/json";
 
-    private static final Integer TIMEOUT = 1000 * 10; // 10s
-
-    protected Client client;
-
     @Inject
     protected ServletContainerFeature servletContainerFeature;
 
-    @Before
-    public void setup() {
-        client = Client.create();
-        client.setConnectTimeout(TIMEOUT);
-        client.setReadTimeout(TIMEOUT);
-        client.setFollowRedirects(Boolean.FALSE);
-    }
+    @Rule
+    public final HttpClientTestRule httpClient = HttpClientTestRule.builder()
+            .url(() -> servletContainerFeature.getHttpUrl() + "/monday/event")
+            .build();
 
     @Test
     public void shouldRespondToChallenge() {
         final String challenge = "abcd";
 
-        WebResource webResource = getWebhookResource();
-
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(CHALLENGE_FIELD, challenge);
         String jsonPost = jsonObject.toString();
 
-        ClientResponse response = webResource.accept(CONTENT_TYPE)
-                .type(CONTENT_TYPE)
-                .post(ClientResponse.class, jsonPost);
-
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-
-        JSONTokener tokener = new JSONTokener(response.getEntityInputStream());
-        JSONObject jsonResponse = new JSONObject(tokener);
-        Assert.assertTrue(jsonResponse.has(CHALLENGE_FIELD));
-        Assert.assertEquals(challenge,jsonResponse.getString(CHALLENGE_FIELD));
+        try (CloseableHttpResponse response = httpClient.buildPostRequest("").contentType(CONTENT_TYPE).entity(jsonPost).execute()) {
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            JSONTokener tokener = new JSONTokener(response.getEntityInputStream());
+            JSONObject jsonResponse = new JSONObject(tokener);
+            Assert.assertTrue(jsonResponse.has(CHALLENGE_FIELD));
+            Assert.assertEquals(challenge,jsonResponse.getString(CHALLENGE_FIELD));
+        }
     }
 
 
     @Test
     public void shouldFireEvent() throws IOException {
+        try (CapturingEventListener listener = new CapturingEventListener(MONDAY_EVENT)) {
+            File jsonPayload = FileUtils.getResourceFileFromContext("files/sample_event.json");
+            byte[] jsonData = Files.readAllBytes(Paths.get(jsonPayload.toURI()));
+            String jsonPost = new String(jsonData, StandardCharsets.UTF_8);
 
-        CapturingEventListener listener = new CapturingEventListener(MONDAY_EVENT);
-
-        WebResource webResource = getWebhookResource();
-
-        File jsonPayload = FileUtils.getResourceFileFromContext("files/sample_event.json");
-        byte[] jsonData = Files.readAllBytes(Paths.get(jsonPayload.toURI()));
-        String jsonPost = new String(jsonData, StandardCharsets.UTF_8);
-
-        ClientResponse response = webResource.accept(CONTENT_TYPE)
-                                             .type(CONTENT_TYPE)
-                                             .post(ClientResponse.class, jsonPost);
-
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        assertEquals(1, listener.getCapturedEventCount(MONDAY_EVENT));
+            try (CloseableHttpResponse response = httpClient.buildPostRequest("").contentType(CONTENT_TYPE).entity(jsonPost).execute()) {
+                assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+                assertEquals(1, listener.getCapturedEventCount(MONDAY_EVENT));
+            }
+        }
     }
 
     @Test
     public void noEventIsBadRequest() {
-        WebResource webResource = getWebhookResource();
-        ClientResponse response = webResource.accept(CONTENT_TYPE)
-                .type(CONTENT_TYPE)
-                .post(ClientResponse.class, "{}");
-        assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        try (CloseableHttpResponse response = httpClient.buildPostRequest("").contentType(CONTENT_TYPE).entity("{}").execute()) {
+            assertEquals(Response.Status.BAD_REQUEST.getStatusCode(), response.getStatus());
+        }
     }
 
     protected String getBaseURL() {
         int port = servletContainerFeature.getPort();
         return "http://localhost:" + port;
-    }
-
-    protected WebResource getWebhookResource() {
-        return  client.resource(getBaseURL()).path("monday").path("event");
     }
 
 }
